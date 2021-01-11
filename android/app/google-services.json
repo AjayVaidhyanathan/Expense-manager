@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "855752892837",
+    "project_id": "xpensz",
+    "storage_bucket": "xpensz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855752892837:android:ccde4a0b445286ad81c84c",
+        "android_client_info": {
+          "package_name": "com.example.expense_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855752892837-lrre6kmua3v0onr91vv2005i7v3ofe4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.expense_tracker",
+            "certificate_hash": "30171180e7063b663a38516b3082834075248d04"
+          }
+        },
+        {
+          "client_id": "855752892837-aji8fm5rn8bmu2ll7a5l5q10ej66i6th.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSSQfFFBmtUyMlgJ2K-fXX0vjl567VBsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855752892837-aji8fm5rn8bmu2ll7a5l5q10ej66i6th.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
