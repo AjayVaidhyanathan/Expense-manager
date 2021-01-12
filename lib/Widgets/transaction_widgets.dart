@@ -104,15 +104,11 @@ class TransactionInputField extends StatelessWidget {
   }
 }
 
-class DatePicker extends StatefulWidget {
-  @override
-  _DatePickerState createState() => _DatePickerState();
-}
-
-class _DatePickerState extends State<DatePicker> {
-  String formatedDate;
-  String defaultDate = new DateFormat.yMMMEd().format(DateTime.now());
-  Future<void> _selectDate(BuildContext context) async {
+class DatePicker extends ChangeNotifier {
+  DateTime selectedDate = DateTime.now();
+  String formatedDate = new DateFormat.yMMMEd().format(DateTime.now());
+  DateTime get getDateTime => selectedDate;
+  Future _selectDate(BuildContext context) async {
     final DateTime dateTime = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -120,15 +116,14 @@ class _DatePickerState extends State<DatePicker> {
       lastDate: DateTime(2100),
     );
     if (dateTime != null) {
-      setState(() {
-        formatedDate = new DateFormat.yMMMEd().format(dateTime);
-        print(formatedDate);
-      });
+      selectedDate = dateTime;
+      formatedDate = new DateFormat.yMMMEd().format(dateTime);
+      print(formatedDate);
+      notifyListeners();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget dateCard(BuildContext context) {
     return Container(
       width: 250,
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -148,7 +143,7 @@ class _DatePickerState extends State<DatePicker> {
           ),
           InkWell(
             child: Text(
-              formatedDate != null ? formatedDate : defaultDate,
+              formatedDate,
               textAlign: TextAlign.center,
             ),
             onTap: () {

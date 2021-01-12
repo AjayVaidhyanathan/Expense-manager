@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+// ignore: must_be_immutable
 class OverviewCard extends StatelessWidget {
-  final String balance;
-  final String income;
-  final String expense;
+  int balance;
+  int income;
+  int expense;
 
-  const OverviewCard(
+  OverviewCard(
       {Key key,
       @required this.balance,
       @required this.income,
@@ -20,7 +22,7 @@ class OverviewCard extends StatelessWidget {
           child: Column(
             children: [
               Text("Balance", style: TextStyle(color: Colors.grey)),
-              Text(balance, style: TextStyle(fontSize: 35)),
+              Text(balance.toString(), style: TextStyle(fontSize: 35)),
             ],
           ),
         ),
@@ -31,14 +33,14 @@ class OverviewCard extends StatelessWidget {
             Column(
               children: [
                 Text("Income", style: TextStyle(color: Colors.grey)),
-                Text(income,
+                Text(income.toString(),
                     style: TextStyle(fontSize: 30, color: Colors.green)),
               ],
             ),
             Column(
               children: [
                 Text("Expenses", style: TextStyle(color: Colors.grey)),
-                Text(expense,
+                Text(expense.toString(),
                     style: TextStyle(fontSize: 30, color: Colors.redAccent)),
               ],
             ),
@@ -105,7 +107,12 @@ class TransactionCard extends StatelessWidget {
               ),
             ],
           ),
-          Text(cost, style: TextStyle(fontSize: 25, color: color)),
+          Row(
+            children: [
+              Icon(FontAwesomeIcons.rupeeSign),
+              Text(cost, style: TextStyle(fontSize: 25, color: color)),
+            ],
+          ),
         ],
       ),
     );

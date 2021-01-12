@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/Services/database.dart';
+
 import 'package:expense_tracker/Widgets/transaction_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Transaction extends StatefulWidget {
   @override
@@ -87,7 +91,8 @@ class _TransactionState extends State<Transaction> {
                 SizedBox(height: 10),
                 Text("Date"),
                 SizedBox(height: 10),
-                DatePicker(),
+                Provider.of<DatePicker>(context, listen: true)
+                    .dateCard(context),
                 SizedBox(height: 10),
                 Text("Description"),
                 SizedBox(height: 10),
@@ -99,7 +104,28 @@ class _TransactionState extends State<Transaction> {
                 Center(
                   child: RaisedButton(
                     child: Text("Submit"),
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<DatabaseServices>(context, listen: false)
+                          .addexpense(context, {
+                        'expense': int.parse(number.text),
+                        'category': _chosenValue,
+                        'income': income,
+                        'year': Provider.of<DatePicker>(context, listen: false)
+                            .selectedDate
+                            .year,
+                        'month': Provider.of<DatePicker>(context, listen: false)
+                            .selectedDate
+                            .month,
+                        'date': Provider.of<DatePicker>(context, listen: false)
+                                .selectedDate
+                                .day -
+                            1,
+                        'description': description.text,
+                        'Formated_Date':
+                            Provider.of<DatePicker>(context, listen: false)
+                                .formatedDate,
+                      });
+                    },
                   ),
                 )
               ],
