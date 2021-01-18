@@ -1,53 +1,88 @@
+import 'package:expense_tracker/Services/Calculations.dart';
+import 'package:expense_tracker/Services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class OverviewCard extends StatelessWidget {
+  bool isData;
   int balance;
   int income;
   int expense;
-
+  AsyncSnapshot snapshot;
   OverviewCard(
-      {Key key,
-      @required this.balance,
-      @required this.income,
-      @required this.expense})
+      {Key key, this.balance, this.income, this.expense, this.snapshot})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Center(
-          child: Column(
+    return StreamBuilder(
+        stream: Provider.of<DatabaseServices>(context, listen: false)
+            .fetchExpenses(context),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            isData = false;
+            return Center(
+              child: Text('Loading...'),
+            );
+          } else {
+            isData = true;
+          }
+
+          return Column(
             children: [
-              Text("Balance", style: TextStyle(color: Colors.grey)),
-              Text(balance.toString(), style: TextStyle(fontSize: 35)),
+              Center(
+                child: Column(
+                  children: [
+                    Text("Balance", style: TextStyle(color: Colors.grey)),
+                    Text(
+                        Provider.of<Calculations>(context, listen: false)
+                                .isTotal
+                            ? snapshot.data.documents[0]
+                                .data()['Total_value']
+                                .toString()
+                            : '0',
+                        style: TextStyle(fontSize: 35)),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      Text("Income", style: TextStyle(color: Colors.grey)),
+                      Text(
+                          Provider.of<Calculations>(context, listen: false)
+                                  .isIncome
+                              ? snapshot.data.documents[0]
+                                  .data()['Total_income']
+                                  .toString()
+                              : '0',
+                          style: TextStyle(fontSize: 30, color: Colors.green)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text("Expenses", style: TextStyle(color: Colors.grey)),
+                      Text(
+                          Provider.of<Calculations>(context, listen: false)
+                                  .isExpense
+                              ? snapshot.data.documents[0]
+                                  .data()['Total_expense']
+                                  .toString()
+                              : '0',
+                          style:
+                              TextStyle(fontSize: 30, color: Colors.redAccent)),
+                    ],
+                  ),
+                ],
+              ),
             ],
-          ),
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Column(
-              children: [
-                Text("Income", style: TextStyle(color: Colors.grey)),
-                Text(income.toString(),
-                    style: TextStyle(fontSize: 30, color: Colors.green)),
-              ],
-            ),
-            Column(
-              children: [
-                Text("Expenses", style: TextStyle(color: Colors.grey)),
-                Text(expense.toString(),
-                    style: TextStyle(fontSize: 30, color: Colors.redAccent)),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
+          );
+        });
   }
 }
 

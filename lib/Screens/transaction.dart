@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/Screens/home.dart';
+import 'package:expense_tracker/Services/Calculations.dart';
 import 'package:expense_tracker/Services/database.dart';
 
 import 'package:expense_tracker/Widgets/transaction_widgets.dart';
@@ -106,25 +108,53 @@ class _TransactionState extends State<Transaction> {
                     child: Text("Submit"),
                     onPressed: () {
                       Provider.of<DatabaseServices>(context, listen: false)
-                          .addexpense(context, {
-                        'expense': int.parse(number.text),
-                        'category': _chosenValue,
-                        'income': income,
-                        'year': Provider.of<DatePicker>(context, listen: false)
-                            .selectedDate
-                            .year,
-                        'month': Provider.of<DatePicker>(context, listen: false)
-                            .selectedDate
-                            .month,
-                        'date': Provider.of<DatePicker>(context, listen: false)
-                                .selectedDate
-                                .day -
-                            1,
-                        'description': description.text,
-                        'Formated_Date':
-                            Provider.of<DatePicker>(context, listen: false)
-                                .formatedDate,
+                          .addexpense(
+                        context,
+                        {
+                          'expense': int.parse(number.text),
+                          'category': _chosenValue,
+                          'income': income,
+                          'year':
+                              Provider.of<DatePicker>(context, listen: false)
+                                  .selectedDate
+                                  .year,
+                          'month':
+                              Provider.of<DatePicker>(context, listen: false)
+                                  .selectedDate
+                                  .month,
+                          'date':
+                              Provider.of<DatePicker>(context, listen: false)
+                                  .selectedDate,
+                          'description': description.text,
+                          'Formated_Date':
+                              Provider.of<DatePicker>(context, listen: false)
+                                  .formatedDate,
+                        },
+                      );
+                      if (income == true) {
+                        Provider.of<Calculations>(context, listen: false)
+                            .totalIncome(context, int.parse(number.text));
+                      } else {
+                        Provider.of<Calculations>(context, listen: false)
+                            .totalExpense(context, int.parse(number.text));
+                      }
+                      Provider.of<Calculations>(context, listen: false)
+                          .totalValue(context);
+                      Provider.of<DatabaseServices>(context, listen: false)
+                          .storeExpenses(context, {
+                        'Total_expense':
+                            Provider.of<Calculations>(context, listen: false)
+                                .expense,
+                        'Total_income':
+                            Provider.of<Calculations>(context, listen: false)
+                                .income,
+                        'Total_value':
+                            Provider.of<Calculations>(context, listen: false)
+                                .total,
+                        'month': DateTime.now().month
                       });
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => Dashboard()));
                     },
                   ),
                 )

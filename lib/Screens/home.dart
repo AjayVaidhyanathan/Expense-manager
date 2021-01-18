@@ -4,9 +4,11 @@ import 'package:expense_tracker/Services/Calculations.dart';
 import 'package:expense_tracker/Services/auth.dart';
 import 'package:expense_tracker/Services/database.dart';
 import 'package:expense_tracker/Widgets/home_widgets.dart';
+import 'package:expense_tracker/Widgets/transaction_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:sticky_grouped_list/sticky_grouped_list.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key, this.title}) : super(key: key);
@@ -19,6 +21,16 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool expense;
+
+  @override
+  void initState() {
+    Provider.of<MiddleContent>(context, listen: false).distinctdates.clear();
+    Provider.of<Calculations>(context, listen: false).isIncome = true;
+    Provider.of<Calculations>(context, listen: false).isExpense = true;
+    Provider.of<Calculations>(context, listen: false).isTotal = true;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,18 +67,13 @@ class _DashboardState extends State<Dashboard> {
 }
 
 class MiddleContent extends ChangeNotifier {
+  bool nextdate;
+  List<String> dates = List<String>();
+  List<String> distinctdates = List<String>();
   Widget headerData(BuildContext context, AsyncSnapshot snapshot) {
     return Column(
       children: [
-        OverviewCard(
-          balance: Provider.of<Calculations>(context, listen: true).totalValue(
-              Provider.of<Calculations>(context, listen: true).income,
-              Provider.of<Calculations>(context, listen: true).expense),
-          income: Provider.of<Calculations>(context, listen: true)
-              .totalIncome(context, snapshot),
-          expense: Provider.of<Calculations>(context, listen: true)
-              .totalExpense(context, snapshot),
-        ),
+        OverviewCard(),
         SizedBox(height: 25),
       ],
     );
@@ -74,51 +81,77 @@ class MiddleContent extends ChangeNotifier {
 
   Widget middleData(BuildContext context) {
     return StreamBuilder(
-        stream: Provider.of<DatabaseServices>(context, listen: false)
-            .fetchData(context, '2020'),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Container(
-                child: Text('No Transactions'),
-              ),
-            );
+        stream: Provider.of<DatabaseServices>(context, listen: true)
+            .fetchData(context, '2021'),
+        builder: (context, allsnapshot) {
+          if (!allsnapshot.hasData) {
+            return CircularProgressIndicator();
           }
-
+          printDate(context, allsnapshot);
           return Column(
             children: [
-              headerData(context, snapshot),
-              SizedBox(height: 10),
+              headerData(context, allsnapshot),
               ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, int index) {
+                  itemCount: Provider.of<MiddleContent>(context, listen: false)
+                      .distinctdates
+                      .length,
+                  itemBuilder: (context, index) {
                     return Column(
                       children: [
-                        DateCard(
-                          date: snapshot.data.documents[index]
-                              .data()['Formated_Date'],
-                        ),
-                        SizedBox(height: 5),
-                        TransactionCard(
-                          description: snapshot.data.documents[index]
-                              .data()['description'],
-                          category:
-                              snapshot.data.documents[index].data()['category'],
-                          cost: snapshot.data.documents[index]
-                              .data()['expense']
-                              .toString(),
-                          color: snapshot.data.documents[index].data()['income']
-                              ? Colors.green
-                              : Colors.red,
-                        ),
+                        DateCard(date: distinctdates[index]),
+                        StreamBuilder(
+                            stream: Provider.of<DatabaseServices>(context,
+                                    listen: true)
+                                .orderByDate(
+                                    context, '2021', distinctdates[index]),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return CircularProgressIndicator();
+                              }
+                              return ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, i) {
+                                    return Column(
+                                      children: [
+                                        TransactionCard(
+                                          description: snapshot
+                                              .data.documents[i]
+                                              .data()['description'],
+                                          category: snapshot.data.documents[i]
+                                              .data()['category'],
+                                          cost: snapshot.data.documents[i]
+                                              .data()['expense']
+                                              .toString(),
+                                          color: snapshot.data.documents[i]
+                                                  .data()['income']
+                                              ? Colors.green
+                                              : Colors.red,
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        )
+                                      ],
+                                    );
+                                  });
+                            })
                       ],
                     );
                   }),
             ],
           );
         });
+  }
+
+  printDate(BuildContext context, AsyncSnapshot snapshot) {
+    for (int index = 0; index < snapshot.data.documents.length; index++) {
+      String date = snapshot.data.documents[index].data()['Formated_Date'];
+      dates.add(date);
+      distinctdates = dates.toSet().toList();
+      print(distinctdates.toString());
+    }
   }
 }

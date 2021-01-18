@@ -18,26 +18,66 @@ class DatabaseServices extends ChangeNotifier {
             Provider.of<AuthService>(context, listen: false).userPicture,
         'displayName':
             Provider.of<AuthService>(context, listen: false).userDisplayName,
-        'lastSeen': DateTime.now()
+        'lastSeen': DateTime.now(),
       },
     );
   }
 
-  Future addexpense(BuildContext context, dynamic data) async {
+  Future addexpense(
+    BuildContext context,
+    dynamic data,
+  ) async {
     return await _firestore
         .collection('Users')
         .doc(Provider.of<AuthService>(context, listen: false).userID)
-        .collection('2020')
+        .collection(DateTime.now().year.toString())
+        .doc(DateTime.now().month.toString())
+        .collection('Transactions')
         .doc()
         .set(data);
   }
 
   Stream<QuerySnapshot> fetchData(
-      BuildContext context, String collection) async* {
+    BuildContext context,
+    String collection,
+  ) async* {
     yield* _firestore
         .collection('Users')
         .doc(Provider.of<AuthService>(context, listen: false).userID)
         .collection(collection)
+        .doc(DateTime.now().month.toString())
+        .collection('Transactions')
+        .orderBy('date')
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> orderByDate(
+      BuildContext context, String collection, String date) async* {
+    yield* _firestore
+        .collection('Users')
+        .doc(Provider.of<AuthService>(context, listen: false).userID)
+        .collection(collection)
+        .doc(DateTime.now().month.toString())
+        .collection('Transactions')
+        .where('Formated_Date', isEqualTo: date)
+        .snapshots();
+  }
+
+  Future storeExpenses(BuildContext context, dynamic data) async {
+    return await _firestore
+        .collection('Users')
+        .doc(Provider.of<AuthService>(context, listen: false).userID)
+        .collection(DateTime.now().year.toString())
+        .doc(DateTime.now().month.toString())
+        .set(data);
+  }
+
+  Stream<QuerySnapshot> fetchExpenses(BuildContext context) async* {
+    yield* _firestore
+        .collection('Users')
+        .doc(Provider.of<AuthService>(context, listen: false).userID)
+        .collection(DateTime.now().year.toString())
+        .where('month', isEqualTo: DateTime.now().month)
         .snapshots();
   }
 }

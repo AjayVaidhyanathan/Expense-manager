@@ -107,6 +107,7 @@ class TransactionInputField extends StatelessWidget {
 class DatePicker extends ChangeNotifier {
   DateTime selectedDate = DateTime.now();
   String formatedDate = new DateFormat.yMMMEd().format(DateTime.now());
+  String monthYear = new DateFormat.yM().format(DateTime.now());
   DateTime get getDateTime => selectedDate;
   Future _selectDate(BuildContext context) async {
     final DateTime dateTime = await showDatePicker(
